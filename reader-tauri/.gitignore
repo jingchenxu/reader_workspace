@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.cargo-cache/
+src-tauri/target/
+src-tauri/gen/
+build-win.log
+__pycache__/
+
+.qa/
+fetch.log

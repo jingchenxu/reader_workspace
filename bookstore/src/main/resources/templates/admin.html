@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员后台 - EPUB 阅读器</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #263238; }
+        header { height: 68px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; color: white; background: linear-gradient(135deg,#4959d4,#7546a8); }
+        header h1 { margin: 0; font-size: 21px; }
+        .header-user { display: flex; align-items: center; gap: 14px; }
+        button { cursor: pointer; border: 0; border-radius: 7px; padding: 8px 13px; }
+        .logout { color: white; background: rgba(255,255,255,.18); }
+        .layout { display: grid; grid-template-columns: 220px minmax(0,1fr); min-height: calc(100vh - 68px); }
+        aside { padding: 24px 14px; background: white; border-right: 1px solid #e7eaf1; }
+        .nav { width: 100%; margin-bottom: 8px; padding: 12px 16px; text-align: left; color: #4b5563; background: transparent; font-size: 15px; }
+        .nav.active { color: #5261d8; background: #eef0ff; font-weight: 700; }
+        main { padding: 28px; overflow: auto; }
+        .page-title { margin: 0 0 20px; font-size: 25px; }
+        .panel { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(31,45,61,.07); overflow: hidden; }
+        .toolbar { padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 14px; border-bottom: 1px solid #edf0f5; }
+        .toolbar-actions { display: flex; align-items: center; gap: 10px; }
+        .search-input { width: 260px; padding: 9px 12px; border: 1px solid #d8dee9; border-radius: 7px; outline: none; }
+        .search-input:focus { border-color: #6572df; box-shadow: 0 0 0 3px rgba(89,103,219,.12); }
+        .refresh { color: white; background: #5967db; }
+        .refresh:disabled { cursor: wait; opacity: .72; }
+        .refresh-icon { display: inline-block; margin-right: 5px; }
+        .refresh.loading .refresh-icon { animation: refresh-spin .75s linear infinite; }
+        @keyframes refresh-spin { to { transform: rotate(360deg); } }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 850px; }
+        th, td { padding: 13px 16px; text-align: left; border-bottom: 1px solid #edf0f5; vertical-align: middle; }
+        th { color: #64748b; background: #fafbfc; font-size: 13px; }
+        td { font-size: 14px; }
+        select { padding: 7px 9px; border: 1px solid #dce1ea; border-radius: 6px; background: white; }
+        .secondary { margin-top: 4px; color: #8a94a6; font-size: 12px; }
+        .hash { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; }
+        .danger { color: #dc3545; background: #fff0f1; }
+        .primary { color: #fff; background: #5967db; }
+        .neutral { color: #43516a; background: #edf1f7; }
+        .operation-column { width: 245px; min-width: 245px; }
+        .operation-buttons { display: flex; gap: 8px; white-space: nowrap; }
+        .status { color: #198754; background: #eaf8f0; }
+        .status.disabled { color: #a33; background: #fff0f0; }
+        .empty { padding: 50px; text-align: center; color: #8a94a6; }
+        .modal-mask { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(18,25,38,.55); }
+        .modal-mask[hidden] { display: none; }
+        .modal { width: min(720px, 100%); max-height: 86vh; overflow: auto; border-radius: 14px; background: white; box-shadow: 0 22px 70px rgba(0,0,0,.28); }
+        .modal-header { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid #e8ebf1; background: white; }
+        .modal-header h3 { margin: 0; font-size: 20px; }
+        .modal-close { font-size: 20px; color: #667085; background: transparent; }
+        .modal-body { padding: 20px 22px 24px; }
+        .detail-grid { display: grid; grid-template-columns: 130px 1fr; gap: 11px 16px; margin-bottom: 24px; }
+        .detail-label { color: #778195; }
+        .detail-value { min-width: 0; overflow-wrap: anywhere; }
+        .owner-list { display: grid; gap: 9px; margin-top: 12px; }
+        .owner-item { padding: 12px 14px; border: 1px solid #e7eaf1; border-radius: 9px; background: #fafbfc; }
+        @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } aside { display:flex; padding:10px; } .nav { margin:0 4px; } main { padding:16px; } }
+    </style>
+</head>
+<body>
+<header>
+    <h1>EPUB 阅读器 · 管理后台</h1>
+    <div class="header-user"><span th:text="${username}">admin</span><span>管理员</span><button class="logout" onclick="logout()">退出登录</button></div>
+</header>
+<div class="layout">
+    <aside>
+        <button id="booksNav" class="nav active" onclick="showTab('books')">书籍管理</button>
+        <button id="usersNav" class="nav" onclick="showTab('users')">人员管理</button>
+    </aside>
+    <main>
+        <section id="booksSection">
+            <h2 class="page-title">书籍管理</h2>
+            <div class="panel">
+                <div class="toolbar"><span id="bookSummary">全部云端书籍</span><div class="toolbar-actions"><input id="bookSearch" class="search-input" type="search" placeholder="按书籍名称查询" oninput="renderBooks()"><button class="refresh" onclick="loadBooks()">刷新</button></div></div>
+                <div class="table-wrap"><table><thead><tr><th>书名</th><th>拥有用户</th><th>大小</th><th>文件 Hash</th><th class="operation-column">操作</th></tr></thead><tbody id="bookRows"></tbody></table></div>
+                <div id="bookEmpty" class="empty" hidden>暂无云端书籍</div>
+            </div>
+        </section>
+        <section id="usersSection" hidden>
+            <h2 class="page-title">人员管理</h2>
+            <div class="panel">
+                <div class="toolbar"><span id="userSummary">全部用户</span><button id="userRefresh" class="refresh" onclick="loadUsers()"><span class="refresh-icon">↻</span><span class="refresh-text">刷新</span></button></div>
+                <div class="table-wrap"><table><thead><tr><th>用户</th><th>角色</th><th>会员类型</th><th>云空间</th><th>状态</th><th>操作</th></tr></thead><tbody id="userRows"></tbody></table></div>
+                <div id="userEmpty" class="empty" hidden>暂无用户</div>
+            </div>
+        </section>
+    </main>
+</div>
+<div id="bookDetailMask" class="modal-mask" hidden onclick="if(event.target===this) closeBookDetails()">
+    <div class="modal">
+        <div class="modal-header"><h3>书籍详细信息</h3><button class="modal-close" onclick="closeBookDetails()">×</button></div>
+        <div id="bookDetailBody" class="modal-body"></div>
+    </div>
+</div>
+<script>
+    const token = localStorage.getItem('token');
+    if (!token || localStorage.getItem('role') !== 'ADMIN') location.href = '/login';
+    const headers = { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' };
+    const formatSize = bytes => { const n=Number(bytes||0); return n>=1073741824?(n/1073741824).toFixed(2)+' GB':n>=1048576?(n/1048576).toFixed(2)+' MB':(n/1024).toFixed(2)+' KB'; };
+    const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    let cachedBooks = [];
+    function logout(){ ['token','userId','username','role'].forEach(k=>localStorage.removeItem(k)); location.href='/'; }
+    function showTab(tab){
+        document.getElementById('booksSection').hidden=tab!=='books'; document.getElementById('usersSection').hidden=tab!=='users';
+        document.getElementById('booksNav').classList.toggle('active',tab==='books'); document.getElementById('usersNav').classList.toggle('active',tab==='users');
+        tab==='books'?loadBooks():loadUsers();
+    }
+    async function api(url, options={}){ const response=await fetch(url,{...options,headers:{...headers,...(options.headers||{})}}); const data=await response.json(); if(response.status===401||response.status===403){ logout(); throw new Error('登录已失效'); } if(!data.success) throw new Error(data.message||'操作失败'); return data.data; }
+    async function loadBooks(){
+        try { cachedBooks=await api('/api/admin/books'); renderBooks();
+        } catch(e){ alert(e.message); }
+    }
+    function renderBooks(){
+        const keyword=(document.getElementById('bookSearch')?.value||'').trim().toLowerCase();
+        const books=cachedBooks.filter(b=>!keyword||String(b.title||'').toLowerCase().includes(keyword)||String(b.originalFileName||'').toLowerCase().includes(keyword)||(b.aliases||[]).some(alias=>String(alias).toLowerCase().includes(keyword)));
+        document.getElementById('bookSummary').textContent=keyword?`查询结果（${books.length} / ${cachedBooks.length}）`:`全部云端书籍（${cachedBooks.length}）`;
+        document.getElementById('bookEmpty').hidden=books.length>0;
+        document.getElementById('bookRows').innerHTML=books.map(b=>`<tr><td><strong>${escapeHtml(b.title)}</strong><div class="secondary">${escapeHtml(b.originalFileName||'')}${b.ownerCount>1?' · 已合并 '+b.ownerCount+' 条持有记录':''}</div></td><td><strong>${b.ownerCount||1} 人</strong></td><td>${formatSize(b.fileSize)}</td><td class="hash" title="${escapeHtml(b.fileHash||'')}">${escapeHtml(b.fileHash||'-')}</td><td class="operation-column"><div class="operation-buttons"><button class="neutral" onclick="viewBook(${b.id})">查看</button><button class="primary" onclick="downloadBook(${b.id})">下载</button><button class="danger" onclick="deleteBook(${b.id})">删除</button></div></td></tr>`).join('');
+    }
+    async function viewBook(id){
+        try { const detail=await api('/api/admin/books/'+id); const b=detail.book; const owners=detail.owners||[];
+            document.getElementById('bookDetailBody').innerHTML=`<div class="detail-grid"><div class="detail-label">书名</div><div class="detail-value"><strong>${escapeHtml(b.title)}</strong></div><div class="detail-label">原始文件名</div><div class="detail-value">${escapeHtml(b.originalFileName||'-')}</div><div class="detail-label">作者</div><div class="detail-value">${escapeHtml(b.author||'-')}</div><div class="detail-label">出版社</div><div class="detail-value">${escapeHtml(b.publisher||'-')}</div><div class="detail-label">ISBN</div><div class="detail-value">${escapeHtml(b.isbn||'-')}</div><div class="detail-label">语言</div><div class="detail-value">${escapeHtml(b.language||'-')}</div><div class="detail-label">文件大小</div><div class="detail-value">${formatSize(b.fileSize)}</div><div class="detail-label">SHA-256</div><div class="detail-value">${escapeHtml(b.fileHash||'-')}</div><div class="detail-label">拥有用户数</div><div class="detail-value">${owners.length}</div></div><h4>拥有该书籍的用户</h4><div class="owner-list">${owners.map(o=>`<div class="owner-item"><strong>${escapeHtml(o.username)}</strong>（用户 ID：${o.userId}）<div class="secondary">账户内书名：${escapeHtml(o.title)} · 上传文件名：${escapeHtml(o.originalFileName||'-')}</div></div>`).join('')||'<div class="empty">暂无拥有者</div>'}</div>`;
+            document.getElementById('bookDetailMask').hidden=false;
+        } catch(e){ alert(e.message); }
+    }
+    function closeBookDetails(){ document.getElementById('bookDetailMask').hidden=true; }
+    async function downloadBook(id){
+        try { const response=await fetch('/api/books/'+id+'/download',{headers:{Authorization:'Bearer '+token}}); if(!response.ok) throw new Error('下载失败'); const blob=await response.blob(); const contentDisposition=response.headers.get('Content-Disposition')||''; const encodedName=(contentDisposition.match(/filename\*=UTF-8''([^;]+)/i)||[])[1]; const fileName=encodedName?decodeURIComponent(encodedName):'book.epub'; const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download=fileName; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url); } catch(e){ alert(e.message); }
+    }
+    async function deleteBook(id){ if(!confirm('确定删除该用户拥有的这本书吗？')) return; try{ await api('/api/books/'+id,{method:'DELETE'}); loadBooks(); }catch(e){ alert(e.message); } }
+    async function loadUsers(){
+        const refreshButton=document.getElementById('userRefresh'); const refreshText=refreshButton?.querySelector('.refresh-text');
+        if(refreshButton){ refreshButton.disabled=true; refreshButton.classList.add('loading'); }
+        if(refreshText) refreshText.textContent='刷新中';
+        try { const users=await api('/api/admin/users'); const updatedAt=new Date().toLocaleTimeString('zh-CN',{hour12:false}); document.getElementById('userSummary').textContent=`全部用户（${users.length}） · 更新于 ${updatedAt}`; document.getElementById('userEmpty').hidden=users.length>0;
+            document.getElementById('userRows').innerHTML=users.map(u=>{const locked=String(u.username).toLowerCase()==='admin'; return `<tr><td><strong>${escapeHtml(u.username)}</strong><div class="secondary">${escapeHtml(u.email||'')}</div></td><td><select onchange="updateUser(${u.id},'role',this.value)" ${locked?'disabled':''}><option value="READER" ${u.role==='READER'?'selected':''}>阅读器用户</option><option value="ADMIN" ${u.role==='ADMIN'?'selected':''}>管理员</option></select></td><td><select onchange="updateUser(${u.id},'membership',this.value)"><option value="READER" ${u.membershipType==='READER'?'selected':''}>普通用户</option><option value="MEMBER" ${u.membershipType==='MEMBER'?'selected':''}>会员用户</option></select></td><td>${formatSize(u.storageUsedBytes)} / ${u.role==='ADMIN'?'不限':formatSize(u.storageQuotaBytes)}</td><td><button class="status ${u.enabled?'':'disabled'}" onclick="toggleUser(${u.id},${!u.enabled})" ${locked?'disabled':''}>${u.enabled?'正常':'已禁用'}</button></td><td><button class="danger" onclick="deleteUser(${u.id})" ${locked?'disabled':''}>删除</button></td></tr>`}).join('');
+        } catch(e){ alert(e.message); }
+        finally { if(refreshButton){ refreshButton.disabled=false; refreshButton.classList.remove('loading'); } if(refreshText) refreshText.textContent='刷新'; }
+    }
+    async function updateUser(id,type,value){ try{ await api(`/api/admin/users/${id}/${type}`,{method:'PUT',body:JSON.stringify(type==='role'?{role:value}:{membershipType:value})}); loadUsers(); }catch(e){ alert(e.message); loadUsers(); } }
+    async function toggleUser(id,enabled){ try{ await api(`/api/admin/users/${id}/enabled`,{method:'PUT',body:JSON.stringify({enabled})}); loadUsers(); }catch(e){ alert(e.message); } }
+    async function deleteUser(id){ if(!confirm('删除用户会同时删除其云端数据，确定继续吗？')) return; try{ await api('/api/admin/users/'+id,{method:'DELETE'}); loadUsers(); loadBooks(); }catch(e){ alert(e.message); } }
+    loadBooks();
+</script>
+</body>
+</html>

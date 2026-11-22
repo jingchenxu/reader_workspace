@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: epub-reader-server
+  profiles:
+    active: dev
+  
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+app:
+  jwt:
+    secret: YourSecretKeyForJWTTokenGenerationMustBeLongEnoughAndSecure2024
+    expiration: 86400000
+  
+  file:
+    upload-dir: ./uploads/books
+    cover-upload-dir: ./uploads/covers
+    max-size: 52428800

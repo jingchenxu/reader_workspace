@@ -1,0 +1,147 @@
+:root {
+  color-scheme: light;
+  --bg: #fffdf9;
+  --fg: #1f2937;
+  --panel: #ffffff;
+  --line: #e5e7eb;
+  --accent: #667eea;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#reader-shell {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body.dark {
+  color-scheme: dark;
+  --bg: #111827;
+  --fg: #f3f4f6;
+  --panel: #1f2937;
+  --line: #374151;
+}
+
+#viewer {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#viewer iframe {
+  border: 0;
+}
+
+.drawer {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 20;
+  width: min(82vw, 340px);
+  transform: translateX(-104%);
+  transition: transform 0.2s ease;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-right {
+  inset: 0 0 0 auto;
+  transform: translateX(104%);
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+
+.drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-header,
+.search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.drawer-header strong {
+  flex: 1;
+}
+
+button {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--fg);
+  padding: 8px 10px;
+  font: inherit;
+}
+
+input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+#toc-list,
+#search-results {
+  overflow: auto;
+  padding: 8px;
+}
+
+.toc-item,
+.search-item {
+  width: 100%;
+  display: block;
+  text-align: left;
+  margin: 0 0 8px;
+  border-radius: 6px;
+}
+
+.search-item {
+  line-height: 1.45;
+}
+
+#search-status {
+  padding: 0 12px 8px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+mark {
+  background: #facc15;
+  color: #111827;
+}
+
+#selection-menu {
+  position: fixed;
+  z-index: 40;
+  display: none;
+  gap: 8px;
+  margin: 0;
+  padding: 6px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+#selection-menu.open {
+  display: flex;
+}

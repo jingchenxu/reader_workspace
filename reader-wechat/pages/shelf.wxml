@@ -1,0 +1,3 @@
+<button bindtap="toggleCloud">{{cloudOpen ? "本地书架" : "云端书库"}}</button>
+<block wx:if="{{cloudOpen}}"><include src="cloud.wxml"/></block><block wx:else><button bindtap="pick" loading="{{busy}}" disabled="{{busy}}">从微信聊天导入 EPUB</button><view wx:if="{{!books.length}}" class="hint">书架为空。导入一本 EPUB 开始阅读。</view><view class="book" wx:for="{{books}}" wx:key="id" data-id="{{item.id}}" bindtap="read" bindlongpress="remove">{{item.title}}<view class="hint">{{item.chapters.length}} 章 · 长按移除</view></view>
+</block>

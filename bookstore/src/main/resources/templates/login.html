@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录 - EPUB阅读器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .captcha-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+
+        .captcha-row input {
+            flex: 1;
+        }
+
+        .captcha-image {
+            width: 120px;
+            height: 42px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            cursor: pointer;
+            object-fit: cover;
+            background: #f5f7ff;
+        }
+
+        .captcha-tip {
+            display: block;
+            color: #999;
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+        }
+
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .back-home a {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-home a:hover {
+            color: #667eea;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>欢迎回来</h1>
+            <p>登录您的 EPUB 阅读器账号</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required
+                       placeholder="请输入用户名" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required
+                       placeholder="请输入密码" autocomplete="current-password">
+            </div>
+
+            <div class="form-group">
+                <label for="captcha">图形验证码</label>
+                <div class="captcha-row">
+                    <input type="text" id="captcha" name="captcha" required
+                           maxlength="4" placeholder="请输入验证码" autocomplete="off">
+                    <img id="captchaImage" class="captcha-image" src="/api/auth/captcha" alt="图形验证码" title="点击刷新验证码">
+                </div>
+                <span class="captcha-tip">看不清？点击图片刷新</span>
+            </div>
+
+            <button type="submit" class="btn" id="loginButton">登录</button>
+        </form>
+
+        <div class="register-link">
+            还没有账号？<a href="/register">立即注册</a>
+        </div>
+
+        <div class="back-home">
+            <a href="/">← 返回首页</a>
+        </div>
+    </div>
+
+    <script>
+        const captchaImage = document.getElementById('captchaImage');
+        const loginButton = document.getElementById('loginButton');
+
+        function refreshCaptcha() {
+            captchaImage.src = '/api/auth/captcha?t=' + Date.now();
+            const captchaInput = document.getElementById('captcha');
+            captchaInput.value = '';
+            captchaInput.focus();
+        }
+
+        captchaImage.addEventListener('mousedown', event => event.preventDefault());
+        captchaImage.addEventListener('click', refreshCaptcha);
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value,
+                captcha: document.getElementById('captcha').value.trim()
+            };
+
+            loginButton.disabled = true;
+            loginButton.textContent = '登录中...';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('登录成功！正在跳转...');
+
+                    localStorage.setItem('token', result.data.token);
+                    localStorage.setItem('userId', result.data.userId);
+                    localStorage.setItem('username', result.data.username);
+                    localStorage.setItem('role', result.data.role);
+
+                    setTimeout(() => {
+                        window.location.href = result.data.role === 'ADMIN' ? '/admin' : '/books';
+                    }, 1000);
+                } else {
+                    showError(result.message || '登录失败，请检查用户名、密码和验证码');
+                    refreshCaptcha();
+                }
+            } catch (error) {
+                showError('网络错误，请检查网络连接');
+                refreshCaptcha();
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = '登录';
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

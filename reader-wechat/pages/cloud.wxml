@@ -1,0 +1,7 @@
+<form wx:if="{{!username}}" bindsubmit="login">
+<input name="server" value="{{server}}" placeholder="书库服务地址" bindblur="serverChanged"/>
+<input name="username" placeholder="用户名"/><input password name="password" placeholder="密码"/>
+<button bindtap="captcha">获取验证码</button><image wx:if="{{picture}}" src="{{picture}}" mode="widthFix" style="width:240rpx"/>
+<input name="captcha" placeholder="验证码"/><button form-type="submit">登录</button></form>
+<block wx:else><view>{{username}}</view><button bindtap="refresh">刷新云端书架</button>
+<view class="book" wx:for="{{remote}}" wx:key="id">{{item.title}} <text class="hint">{{item.author}}</text><button size="mini" disabled="{{busy}}" data-id="{{item.id}}" bindtap="download">下载或阅读</button></view><button bindtap="logout">退出登录</button></block><text class="hint">{{message}}</text>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的书籍 - EPUB阅读器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .role-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            position: sticky;
+            top: 1rem;
+        }
+
+        .section-title {
+            color: #999;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.7rem 0.75rem;
+            border-radius: 8px;
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .category-item:hover,
+        .category-item.active {
+            background: rgba(102, 126, 234, 0.12);
+            color: #667eea;
+        }
+
+        .category-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .category-name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 0.95rem;
+        }
+
+        .category-count {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .add-category-btn {
+            width: 100%;
+            margin-top: 0.75rem;
+            border: 1px dashed #cfd6e6;
+            background: #fafbff;
+            justify-content: flex-start;
+        }
+
+        .main-content {
+            min-width: 0;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-count {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 230px));
+            gap: 1.5rem;
+            justify-content: start;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 250px;
+            background: #f3f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .book-cover .placeholder {
+            position: absolute;
+            font-size: 4rem;
+        }
+
+        .book-info {
+            padding: 1rem;
+        }
+
+        .book-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .book-author {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .category-select {
+            width: 100%;
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            padding: 0.45rem 0.55rem;
+            color: #555;
+            background: white;
+            margin-bottom: 0.75rem;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
+        }
+
+        .book-date {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .btn-download,
+        .btn-delete {
+            color: white;
+            border: none;
+            padding: 0.4rem 0.7rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .btn-download {
+            background: #667eea;
+        }
+
+        .btn-download:hover {
+            background: #5568d3;
+        }
+
+        .btn-delete {
+            background: #ff4757;
+            margin-left: 0.5rem;
+        }
+
+        .btn-delete:hover {
+            background: #ee3742;
+        }
+
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .page-link {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #dfe3eb;
+            border-radius: 6px;
+            background: white;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .page-link:hover,
+        .page-link.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .page-link.disabled {
+            color: #bbb;
+            background: #f5f5f5;
+            border-color: #e8e8e8;
+            pointer-events: none;
+        }
+
+        .page-summary {
+            color: #777;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-description {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 1rem;
+            }
+
+            .book-cover {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">📚 EPUB阅读器</div>
+            <div class="user-info">
+                <span class="username" th:text="${username}">用户名</span>
+                <span class="role-badge" th:text="${role}">USER</span>
+                <button class="btn-logout" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="section-title">书架</div>
+            <div class="category-list">
+                <a class="category-item"
+                   th:classappend="${currentCategoryId == null} ? 'active'"
+                   th:href="@{/books}">
+                    <span class="category-dot" style="background: #999;"></span>
+                    <span class="category-name">全部图书</span>
+                    <span class="category-count" th:text="${allBookCount}">0</span>
+                </a>
+
+                <a class="category-item"
+                   th:each="category : ${categories}"
+                   th:classappend="${currentCategoryId != null and currentCategoryId.equals(category.id)} ? 'active'"
+                   th:href="@{/books(categoryId=${category.id})}">
+                    <span class="category-dot" th:style="'background: ' + ${category.color} + ';'"></span>
+                    <span class="category-name" th:text="${category.name}">分类</span>
+                    <span class="category-count" th:text="${category.bookCount}">0</span>
+                </a>
+            </div>
+            <button type="button" class="category-item add-category-btn" onclick="createCategory()">
+                <span class="category-dot" style="background: transparent; color: #667eea;">+</span>
+                <span class="category-name">新建分类</span>
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title" th:text="${currentCategoryName}">全部图书</h1>
+                <p class="book-count">共 <span th:text="${bookCount}">0</span> 本书籍</p>
+            </div>
+
+            <div class="action-bar">
+                <div></div>
+                <a href="#" class="btn-primary" onclick="syncBook(); return false;">📤 同步新书籍</a>
+            </div>
+
+            <div class="books-grid" th:if="${bookCount > 0}">
+                <div class="book-card" th:each="book : ${books}">
+                    <div class="book-cover">
+                        <span class="placeholder">📖</span>
+                        <img th:if="${book.coverPath != null and book.coverPath != ''}"
+                             th:src="@{${book.coverPath.startsWith('http') ? book.coverPath : book.coverPath}}"
+                             alt="封面"
+                             onload="this.previousElementSibling.style.display='none';"
+                             onerror="this.style.display='none'; this.previousElementSibling.style.display='block';">
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title" th:text="${book.title}">书名</h3>
+                        <p class="book-author" th:text="${book.author != null ? book.author : '未知作者'}">作者</p>
+                        <p class="book-author" th:if="${isAdmin}" th:text="'所属用户 ID：' + ${book.userId}">所属用户</p>
+
+                        <select class="category-select"
+                                th:onchange="'updateBookCategory(' + ${book.id} + ', this.value, event)'">
+                            <option value="" th:selected="${book.categoryId == null}">未分类</option>
+                            <option th:each="category : ${categories}"
+                                    th:value="${category.id}"
+                                    th:text="${category.name}"
+                                    th:selected="${book.categoryId != null and book.categoryId.equals(category.id)}">分类</option>
+                        </select>
+
+                        <div class="book-meta">
+                            <span class="book-date" th:text="${#temporals.format(book.addedAt, 'yyyy-MM-dd')}">添加日期</span>
+                            <div>
+                                <button class="btn-download" th:onclick="'downloadBook(' + ${book.id} + ', event)'">下载</button>
+                                <button class="btn-delete" th:onclick="'deleteBook(' + ${book.id} + ', event)'">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="pagination-wrapper" th:if="${totalPages > 1}" aria-label="书籍分页">
+                <div class="pagination">
+                    <a class="page-link"
+                       th:classappend="${!hasPrevious} ? 'disabled'"
+                       th:href="${hasPrevious} ? @{/books(page=${currentPage - 1}, categoryId=${currentCategoryId})} : '#'">上一页</a>
+                    <a class="page-link"
+                       th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}"
+                       th:classappend="${pageNumber == currentPage} ? 'active'"
+                       th:href="@{/books(page=${pageNumber}, categoryId=${currentCategoryId})}"
+                       th:text="${pageNumber + 1}"
+                       th:attr="aria-current=${pageNumber == currentPage} ? 'page' : null">1</a>
+                    <a class="page-link"
+                       th:classappend="${!hasNext} ? 'disabled'"
+                       th:href="${hasNext} ? @{/books(page=${currentPage + 1}, categoryId=${currentCategoryId})} : '#'">下一页</a>
+                </div>
+                <span class="page-summary" th:text="'第 ' + ${currentPage + 1} + ' / ' + ${totalPages} + ' 页'">第 1 / 1 页</span>
+            </nav>
+
+            <div class="empty-state" th:if="${bookCount == 0}">
+                <div class="empty-icon">📚</div>
+                <h2 class="empty-title">暂无书籍</h2>
+                <p class="empty-description">当前分类下还没有书籍，可以同步新书籍，或在“全部图书”中给书籍选择分类。</p>
+                <a href="#" class="btn-primary" onclick="syncBook(); return false;">📤 同步书籍</a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            localStorage.removeItem('role');
+            window.location.href = '/';
+        }
+
+        async function createCategory() {
+            const name = prompt('请输入分类名称');
+            if (!name || !name.trim()) {
+                return;
+            }
+
+            const colors = ['#667eea', '#2ed573', '#ff7f50', '#ff4757', '#1e90ff', '#a55eea'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            try {
+                const response = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name.trim(), color })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = '/books?categoryId=' + result.data.id;
+                } else {
+                    alert('创建分类失败：' + result.message);
+                }
+            } catch (error) {
+                alert('创建分类失败：' + error.message);
+            }
+        }
+
+        async function updateBookCategory(bookId, categoryIdValue, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            const categoryId = categoryIdValue ? Number(categoryIdValue) : null;
+
+            try {
+                const response = await fetch('/api/books/' + bookId + '/category', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ categoryId })
+                });
+
+                const result = await response.json();
+                if (!result.success) {
+                    alert('更新分类失败：' + result.message);
+                    location.reload();
+                    return;
+                }
+
+                location.reload();
+            } catch (error) {
+                alert('更新分类失败：' + error.message);
+                location.reload();
+            }
+        }
+
+        async function downloadBook(bookId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            try {
+                const response = await fetch('/api/books/' + bookId + '/download', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('下载失败，HTTP ' + response.status);
+                }
+
+                const blob = await response.blob();
+                const filename = getDownloadFilename(response.headers.get('Content-Disposition'), bookId);
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('下载失败：' + error.message);
+            }
+        }
+
+        function getDownloadFilename(contentDisposition, bookId) {
+            if (contentDisposition) {
+                const utf8Filename = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+                if (utf8Filename && utf8Filename[1]) {
+                    return decodeURIComponent(utf8Filename[1]);
+                }
+
+                const filename = contentDisposition.match(/filename="?([^"]+)"?/i);
+                if (filename && filename[1]) {
+                    return filename[1];
+                }
+            }
+
+            return 'book-' + bookId + '.epub';
+        }
+
+        function syncBook() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.epub';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadBook(file);
+                }
+            };
+            input.click();
+        }
+
+        async function uploadBook(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('title', file.name.replace(/\.epub$/i, ''));
+            formData.append('author', '未知作者');
+
+            try {
+                const response = await fetch('/api/books/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('书籍同步成功！');
+                    location.reload();
+                } else {
+                    alert('同步失败：' + result.message);
+                }
+            } catch (error) {
+                alert('网络错误：' + error.message);
+            }
+        }
+
+        async function deleteBook(bookId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            if (!confirm('确定要删除这本书籍吗？此操作将同时删除书籍文件和封面。')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/books/' + bookId, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error('HTTP ' + response.status + ': ' + errorText);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('书籍删除成功！');
+                    location.reload();
+                } else {
+                    alert('删除失败：' + result.message);
+                }
+            } catch (error) {
+                alert('删除失败：' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

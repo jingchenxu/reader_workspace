@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>EPUB Reader</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main id="reader-shell">
+      <aside id="toc-panel" class="drawer">
+        <div class="drawer-header">
+          <strong>目录</strong>
+          <button id="toc-close" type="button">关闭</button>
+        </div>
+        <nav id="toc-list"></nav>
+      </aside>
+
+      <aside id="search-panel" class="drawer drawer-right">
+        <div class="drawer-header">
+          <strong>全文搜索</strong>
+          <button id="search-close" type="button">关闭</button>
+        </div>
+        <div class="search-row">
+          <input id="search-input" placeholder="输入关键词" />
+          <button id="search-run" type="button">搜索</button>
+        </div>
+        <div id="search-status"></div>
+        <div id="search-results"></div>
+      </aside>
+
+      <section id="viewer"></section>
+
+      <menu id="selection-menu">
+        <button id="selection-bookmark" type="button">书签</button>
+        <button id="selection-annotation" type="button">批注</button>
+      </menu>
+    </main>
+
+    <script src="./jszip.min.js"></script>
+    <script src="./epub.min.js"></script>
+    <script src="./reader.js"></script>
+  </body>
+</html>

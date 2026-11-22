@@ -1,0 +1,5 @@
+<button bindtap="toggleTools">书签、笔记与字号</button>
+<view wx:if="{{tools}}"><text>字号 {{font}}</text><slider min="14" max="32" value="{{font}}" bindchange="fontChange"/>
+<form bindsubmit="saveMark"><input name="note" placeholder="本章笔记（选填）"/><button form-type="submit">保存章节书签</button></form>
+<view wx:for="{{marks}}" wx:key="id"><text bindtap="openMark" data-index="{{item.index}}">{{labels[item.index]}} · {{item.note}}</text><button size="mini" bindtap="deleteMark" data-id="{{item.id}}">删除</button></view></view>
+<picker range="{{labels}}" value="{{index}}" bindchange="jump"><view class="chapter">目录 · {{labels[index]}} ▾</view></picker><view class="body" style="font-size:{{font}}px"><text selectable>{{content}}</text></view><view class="nav"><button disabled="{{index===0}}" bindtap="prev">上一章</button><button disabled="{{index+1>=labels.length}}" bindtap="next">下一章</button></view>

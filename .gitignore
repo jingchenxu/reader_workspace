@@ -1,0 +1,22 @@
+# Workspace-level ignores
+**/.git/
+**/node_modules/
+**/.dart_tool/
+**/build/
+**/dist/
+**/dist-electron/
+**/.tooling/
+**/ios/Pods/
+**/ios/.symlinks/
+**/.codex_tmp/
+**/.DS_Store
+**/Thumbs.db
+*.log
+*.tmp
+
+# Local signing and generated inspection artifacts
+**/android/app/release-key.jks
+**/android/key.properties
+**/tmp-*.png
+**/tmp-*.xml
+**/local.properties

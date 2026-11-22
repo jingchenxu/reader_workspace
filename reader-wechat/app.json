@@ -1,0 +1,10 @@
+{
+  "pages": [
+    "pages/shelf",
+    "pages/read"
+  ],
+  "window": {
+    "navigationBarTitleText": "我的书架",
+    "backgroundColor": "#f6f4ee"
+  }
+}

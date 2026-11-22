@@ -1,0 +1,21 @@
+{
+  "name": "reader-tauri",
+  "private": true,
+  "version": "1.2.0",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "epubjs": "^0.3.93",
+    "jszip": "^3.10.2",
+    "pinia": "2.1.0",
+    "vue": "3.3.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@vitejs/plugin-vue": "5.2.4",
+    "vite": "^5"
+  }
+}

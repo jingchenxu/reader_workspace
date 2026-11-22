@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: epub-reader-server
+  
+  datasource:
+    url: jdbc:mysql://111.229.129.73:3306/bookstore?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: bookstore
+    password: 7fCaYSPSDY6XekXX
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      validation-timeout: 5000
+      idle-timeout: 600000
+      max-lifetime: 900000
+      keepalive-time: 300000
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+app:
+  jwt:
+    secret: YourSecretKeyForJWTTokenGenerationMustBeLongEnoughAndSecure2024
+    expiration: 86400000
+  
+  file:
+    upload-dir: ./uploads/books
+    cover-upload-dir: ./uploads/covers
+    max-size: 52428800
+
+logging:
+  level:
+    com.bookstore: DEBUG
+    org.springframework.security: WARN
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

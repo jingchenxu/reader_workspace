@@ -1,0 +1,43 @@
+{
+  "productName": "EPUB Reader Tauri",
+  "version": "1.2.0",
+  "identifier": "com.epubreader.tauri",
+  "build": {
+    "frontendDist": "../dist",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:5175",
+    "beforeDevCommand": "npm run dev"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "EPUB Reader Tauri",
+        "width": 1200,
+        "height": 800
+      }
+    ],
+    "security": {
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$CONFIG/epub-reader/upload/books/**",
+          "$CONFIG/epub-reader/upload/covers/**"
+        ]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "../public/logo-256.ico",
+      "../public/logo-256.png"
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "../public/logo-256.ico"
+      }
+    }
+  }
+}
