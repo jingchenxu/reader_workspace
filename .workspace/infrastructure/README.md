@@ -1,3 +1,3 @@
 # Every important fact belongs in this repository.
-# Keep credentials only in encrypted .workspace/infrastructure/secrets.enc.json.
-# The decryption key is external and must never be committed.
+# This private repository currently permits plaintext credentials by explicit owner authorization.
+# Keep repository access restricted; rotate credentials before sharing or making it public.
