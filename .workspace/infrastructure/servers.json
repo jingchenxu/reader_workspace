@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "entries": [],
+  "format": "{id,kind,host,port,service,database,owner,secretRef,environment,lastVerifiedAt,evidence,rollbackRef}"
+}

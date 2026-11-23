@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "schedules": [
+    {"id":"workspace-maintenance-report","purpose":"扫描日志/临时文件并生成报告","frequency":"weekly","action":"report","script":".workspace/scripts/Invoke-WorkspaceMaintenance.ps1"},
+    {"id":"workspace-context-snapshot","purpose":"生成上下文与 Git 状态快照","frequency":"on-demand-and-before-handoff","action":"snapshot","script":".workspace/scripts/Save-WorkspaceSnapshot.ps1"}
+  ],
+  "registration": {"windowsTaskScheduler": "记录任务名、触发器和最后运行时间；不在仓库保存凭据"}
+}

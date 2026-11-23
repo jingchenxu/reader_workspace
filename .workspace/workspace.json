@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "workspace": "book_workspace",
+  "repository": "https://github.com/jingchenxu/reader_workspace.git",
+  "projects": [
+    {"id":"bookstore","path":"bookstore","type":"spring-boot","context":".workspace/projects/bookstore.md"},
+    {"id":"epub-mobile","path":"EPUB-MOBILE","type":"flutter","context":".workspace/projects/epub-mobile.md"},
+    {"id":"epub-reader","path":"EPUB-READER","type":"electron-vue","context":".workspace/projects/epub-reader.md"},
+    {"id":"reader-tauri","path":"reader-tauri","type":"tauri-vue","context":".workspace/projects/reader-tauri.md"},
+    {"id":"reader-wechat","path":"reader-wechat","type":"wechat-mini-program","context":".workspace/projects/reader-wechat.md"}
+  ],
+  "infrastructure": {
+    "server":".workspace/infrastructure/servers.json",
+    "database":".workspace/infrastructure/databases.json",
+    "secrets":".workspace/infrastructure/secrets.enc.json",
+    "changeLog":".workspace/infrastructure/changes.jsonl",
+    "secretPolicy":"Encrypted values are committed; decryption key is external and referenced by keyRef."
+  },
+  "maintenance": {
+    "manifest":".workspace/maintenance.json",
+    "defaultMode":"report",
+    "retentionDays":14,
+    "requireStoppedProcess":true,
+    "requireDryRunBeforeDelete":true
+  },
+  "context": {
+    "canonicalFile":".workspace/CONTEXT.md",
+    "snapshotDirectory":".workspace/snapshots",
+    "handoffRequired":true,
+    "versionedInGit":true
+  }
+}

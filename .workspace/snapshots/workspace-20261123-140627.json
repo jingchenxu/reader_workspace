@@ -1,0 +1,45 @@
+﻿{
+    "generatedAt":  "2026-11-23T14:06:27.5814076+08:00",
+    "workspace":  "F:\\book_workspace",
+    "gitRoot":  "F:/book_workspace",
+    "sha":  "6e1bcbdf3c4fa221929dccbe139e8385aeb70a93",
+    "branch":  "master",
+    "clean":  false,
+    "status":  [
+                   " M bookstore/src/main/java/com/bookstore/security/SecurityConfig.java",
+                   " M bookstore/src/main/resources/templates/admin.html",
+                   " M bookstore/src/main/resources/templates/books.html",
+                   " M bookstore/src/main/resources/templates/index.html",
+                   " M bookstore/src/main/resources/templates/login.html",
+                   " M bookstore/src/main/resources/templates/register.html",
+                   "?? .workspace/",
+                   "?? bookstore/src/main/resources/static/"
+               ],
+    "projects":  [
+                     {
+                         "id":  "bookstore",
+                         "path":  "bookstore",
+                         "exists":  true
+                     },
+                     {
+                         "id":  "EPUB-MOBILE",
+                         "path":  "EPUB-MOBILE",
+                         "exists":  true
+                     },
+                     {
+                         "id":  "EPUB-READER",
+                         "path":  "EPUB-READER",
+                         "exists":  true
+                     },
+                     {
+                         "id":  "reader-tauri",
+                         "path":  "reader-tauri",
+                         "exists":  true
+                     },
+                     {
+                         "id":  "reader-wechat",
+                         "path":  "reader-wechat",
+                         "exists":  true
+                     }
+                 ]
+}
