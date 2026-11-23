@@ -1,0 +1,6 @@
+target/
+!target/epub-reader-server-1.0.0.jar
+uploads/
+*.log
+.DS_Store
+%s

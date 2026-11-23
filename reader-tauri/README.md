@@ -6,7 +6,7 @@ Tauri 2 桌面端复用 EPUB-READER 的 Vue 书架、设置、登录、云端存
 
 Windows 客户端共享原书库 `%APPDATA%/epub-reader/db/epub_reader.db` 及同目录下的 `upload`。原书籍、分类、阅读进度、书签和批注可直接使用。空库会自动初始化。删除、改分类和保存阅读位置会更新共享数据。Tauri 使用独立的 WebView 登录会话，首次进入云端功能时需登录。
 
-云端接口沿用 Electron 的地址 `http://localhost:8080`，由工作区的 bookstore Spring Boot 服务提供。Windows 安装包只包含桌面客户端。使用云端功能前，需运行已配置数据库的 bookstore 服务。
+云端接口沿用 Electron 的地址 `https://www.huijuguangnian.top:8068`，由工作区的 bookstore Spring Boot 服务提供。Windows 安装包只包含桌面客户端。使用云端功能前，需运行已配置数据库的 bookstore 服务。
 
 | 功能 | 客户端和服务端的交互 |
 | --- | --- |
@@ -57,3 +57,4 @@ npm run tauri -- build --bundles nsis
 本轮审查修复了导入失败遗留 EPUB 和封面、导出失败可能覆盖原文件、并发重新导入与文件清理冲突、旧库单本文件读取失败中断启动，以及过期请求影响新登录会话的问题。待清理路径和删除书库记录在同一 SQLite 事务中提交；文件被占用时保留清理任务，下次启动或彻底删除操作会重试。导出通过目标目录内临时文件完成后再替换。
 
 Windows 发布版已验证真实文件导入、重复检测、分类分配、书签批注、EPUB 和笔记导出、模拟 SQLite 写入失败时两份文件均回滚，以及彻底删除测试书。Rust 清理测试覆盖共享、已缺失和暂时无法删除的文件。会话测试覆盖管理员接口拒绝访问、旧请求迟到以及当前会话失效。本轮未重新执行真实后端端到端或其他操作系统的测试。
+

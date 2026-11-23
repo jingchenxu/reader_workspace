@@ -1,3 +1,5 @@
+export const API_BASE = 'https://www.huijuguangnian.top:8068'
+
 /**
  * HTTP request helpers.
  * Adds auth headers and logs the user out when protected API calls fail.

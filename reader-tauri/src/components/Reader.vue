@@ -317,7 +317,7 @@ import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 import { useBookStore } from '../stores/bookStore'
 import ePub from 'epubjs'
 import { buildFileUrl } from '../utils/pathHelper'
-import { authFetch } from '../utils/httpHelper'
+import { API_BASE, authFetch } from '../utils/httpHelper'
 
 const props = defineProps({
   book: {
@@ -1269,7 +1269,7 @@ async function syncProgressToCloud(progressData) {
     if (!remoteProgressBook || remoteProgressBook.token !== token) {
       const [books, response] = await Promise.all([
         window.electronAPI.getBooks(null),
-        authFetch('http://localhost:8080/api/books')
+        authFetch(API_BASE + '/api/books')
       ])
       const local = books.find(book => book.id === progressData.bookId)
       const payload = await response.json()
@@ -1279,7 +1279,7 @@ async function syncProgressToCloud(progressData) {
       remoteProgressBook = { token, id: remote.id }
     }
     if (token !== (localStorage.getItem('auth_token_full') || localStorage.getItem('auth_token'))) return
-    await authFetch('http://localhost:8080/api/sync/progress', {
+    await authFetch(API_BASE + '/api/sync/progress', {
       method: 'POST', body: JSON.stringify({ ...progressData, bookId: remoteProgressBook.id })
     })
   } catch (error) {

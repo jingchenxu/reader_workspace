@@ -670,7 +670,7 @@
 import { computed, ref, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useBookStore } from '../stores/bookStore'
 import { buildFileUrl } from '../utils/pathHelper'
-import { authFetch, getAuthToken, setLogoutCallback } from '../utils/httpHelper'
+import { API_BASE, authFetch, getAuthToken, setLogoutCallback } from '../utils/httpHelper'
 
 const bookStore = useBookStore()
 const books = computed(() => bookStore.books)
@@ -745,7 +745,7 @@ const captchaImageUrl = ref('')
 const captchaId = ref('')
 const captchaInput = ref(null)
 const isLoginLoading = ref(false)
-const AUTH_API_BASE = 'http://localhost:8080/api/auth'
+const AUTH_API_BASE = API_BASE + '/api/auth'
 
 // 设置相关状态
 const showSettings = ref(false)
@@ -1185,7 +1185,7 @@ const paginatedCloudBooks = computed(() => {
 
 async function fetchStorageQuota() {
   if (!isLoggedIn.value) return
-  const response = await authFetch('http://localhost:8080/api/storage/quota')
+  const response = await authFetch(API_BASE + '/api/storage/quota')
   const data = await response.json()
   if (data.success && data.data) {
     cloudQuota.value = data.data
@@ -1205,9 +1205,9 @@ async function refreshAdminPanel() {
   adminLoading.value = true
   try {
     const [usersResponse, booksResponse, configResponse] = await Promise.all([
-      authFetch('http://localhost:8080/api/admin/users'),
-      authFetch('http://localhost:8080/api/admin/books'),
-      authFetch('http://localhost:8080/api/admin/config/storage')
+      authFetch(API_BASE + '/api/admin/users'),
+      authFetch(API_BASE + '/api/admin/books'),
+      authFetch(API_BASE + '/api/admin/config/storage')
     ])
     const [usersData, booksData, configData] = await Promise.all([
       usersResponse.json(), booksResponse.json(), configResponse.json()
@@ -1238,7 +1238,7 @@ async function toggleAdminUser(user) {
 }
 
 async function updateAdminUser(path, body) {
-  const response = await authFetch(`http://localhost:8080${path}`, {
+  const response = await authFetch(`${API_BASE}${path}`, {
     method: 'PUT',
     body: JSON.stringify(body)
   })
@@ -1251,7 +1251,7 @@ async function updateAdminUser(path, body) {
 
 async function deleteAdminUser(user) {
   if (!confirm(`确定删除用户“${user.username}”吗？`)) return
-  const response = await authFetch(`http://localhost:8080/api/admin/users/${user.id}`, { method: 'DELETE' })
+  const response = await authFetch(`${API_BASE}/api/admin/users/${user.id}`, { method: 'DELETE' })
   const data = await response.json()
   if (!data.success) alert(data.message || '删除失败')
   await refreshAdminPanel()
@@ -1259,13 +1259,13 @@ async function deleteAdminUser(user) {
 
 async function deleteAdminBook(book) {
   if (!confirm(`确定删除云端书籍“${book.title}”吗？`)) return
-  const response = await authFetch(`http://localhost:8080/api/books/${book.id}`, { method: 'DELETE' })
+  const response = await authFetch(`${API_BASE}/api/books/${book.id}`, { method: 'DELETE' })
   if (!response.ok) alert('删除书籍失败')
   await refreshAdminPanel()
 }
 
 async function saveAdminConfig() {
-  const response = await authFetch('http://localhost:8080/api/admin/config/storage', {
+  const response = await authFetch(API_BASE + '/api/admin/config/storage', {
     method: 'PUT',
     body: JSON.stringify({
       'storage.reader.quota-bytes': adminConfigForm.value.readerQuotaMb * 1024 * 1024,
@@ -1350,7 +1350,7 @@ async function downloadCloudBookToLocal(book, { notifySuccess = true } = {}) {
     downloadingBookIds.value = new Set([...downloadingBookIds.value, book.id])
     try {
       // 构建下载 URL - 使用新的下载接口
-      const downloadUrl = `http://localhost:8080/api/books/${book.id}/download`
+      const downloadUrl = `${API_BASE}/api/books/${book.id}/download`
       const authToken = getAuthToken()
 
       const result = await window.electronAPI.downloadCloudBook(downloadUrl, {
@@ -1561,7 +1561,7 @@ async function fetchCloudBooks() {
   
   try {
     await refreshAllLocalBooks()
-    const response = await authFetch('http://localhost:8080/api/books')
+    const response = await authFetch(API_BASE + '/api/books')
     const data = await response.json()
     
     if (data.success && Array.isArray(data.data)) {
@@ -1647,7 +1647,7 @@ async function syncCategoriesToCloud() {
     }))
   }
 
-  const response = await authFetch('http://localhost:8080/api/categories/sync', {
+  const response = await authFetch(API_BASE + '/api/categories/sync', {
     method: 'POST',
     body: JSON.stringify(payload)
   })
@@ -1726,7 +1726,7 @@ async function syncBookToCloud(book, event) {
     
     // 4. 发送请求
     
-    const response = await authFetch('http://localhost:8080/api/books/sync', {
+    const response = await authFetch(API_BASE + '/api/books/sync', {
       method: 'POST',
       body: formData
     })
