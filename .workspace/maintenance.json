@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "schedules": [
-    {"id":"workspace-maintenance-report","purpose":"扫描日志/临时文件并生成报告","frequency":"weekly","action":"report","script":".workspace/scripts/Invoke-WorkspaceMaintenance.ps1"},
-    {"id":"workspace-context-snapshot","purpose":"生成上下文与 Git 状态快照","frequency":"on-demand-and-before-handoff","action":"snapshot","script":".workspace/scripts/Save-WorkspaceSnapshot.ps1"}
-  ],
-  "registration": {"windowsTaskScheduler": "记录任务名、触发器和最后运行时间；不在仓库保存凭据"}
+    {"id":"qoder-c-drive-cleanup","purpose":"C盘深度清理","frequency":"daily","startTime":"22:00","taskName":"\\QoderWork_C_Drive_Cleanup","action":"powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\jingc\\.qoderworkcn\\scripts\\C_Drive_Cleanup.ps1","runAs":"jingc","state":"enabled","lastRun":"2026-11-22T22:00:01+08:00","lastResult":0,"nextRun":"2026-11-23T22:00:00+08:00","source":"Windows Task Scheduler","scope":"outside book_workspace; review before changing"},
+    {"id":"workspace-maintenance-report","purpose":"扫描工作空间日志和临时文件","frequency":"weekly","action":"report","script":".workspace/scripts/Invoke-WorkspaceMaintenance.ps1","state":"defined-in-repository","registeredTask":false},
+    {"id":"workspace-context-snapshot","purpose":"生成跨智能体上下文快照","frequency":"on-demand-and-before-handoff","action":"snapshot","script":".workspace/scripts/Save-WorkspaceSnapshot.ps1","state":"defined-in-repository","registeredTask":false}
+  ]
 }

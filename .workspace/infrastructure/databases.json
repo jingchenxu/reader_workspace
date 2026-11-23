@@ -1,5 +1,9 @@
 {
   "schemaVersion": 1,
-  "entries": [],
-  "format": "{id,engine,host,port,name,owner,environment,secretRef,lastVerifiedAt,evidence,backupRef}"
+  "entries": [
+    {"id":"bookstore-dev-remote","engine":"mysql","host":"111.229.129.73","port":3306,"name":"bookstore","owner":"bookstore","environment":"dev","secretRef":"workspace/secrets/bookstore-dev","lastVerifiedAt":"2026-11-23T14:10:00+08:00","evidence":"application-dev.yml JDBC URL","backupRef":"not-recorded"},
+    {"id":"bookstore-prod-local","engine":"mysql","host":"127.0.0.1","port":3306,"name":"bookstore","owner":"bookstore","environment":"prod","secretRef":"workspace/secrets/bookstore-prod","lastVerifiedAt":"2026-11-23T14:10:00+08:00","evidence":"application-prod.yml JDBC URL; no listener during scan","backupRef":"not-recorded"},
+    {"id":"reader-electron-local","engine":"sqlite","host":"local-filesystem","port":null,"name":"EPUB-READER local database","owner":"EPUB-READER","environment":"local","source":"EPUB-READER/electron/main.js","lastVerifiedAt":"2026-11-23T14:10:00+08:00","evidence":"better-sqlite3 usage; exact runtime path requires app inspection","backupRef":"not-recorded"},
+    {"id":"reader-tauri-local","engine":"sqlite","host":"local-filesystem","port":null,"name":"reader-tauri local database","owner":"reader-tauri","environment":"local","source":"reader-tauri/src-tauri/src","lastVerifiedAt":"2026-11-23T14:10:00+08:00","evidence":"rusqlite usage; runtime path is under user app data","backupRef":"not-recorded"}
+  ]
 }
